@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="../usecases.html"><strong aria-hidden="true">2.</strong> Use cases</a></li><li class="chapter-item expanded affix "><li class="part-title">Guide</li><li class="chapter-item expanded "><a href="../guide/gettingstarted.html"><strong aria-hidden="true">3.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="../guide/workspaces.html"><strong aria-hidden="true">4.</strong> Working with workspaces</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">5.</strong> Importing projects</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">6.</strong> Integrating with CI</div></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/filters.html"><strong aria-hidden="true">7.</strong> Filter syntax</a></li><li class="chapter-item expanded "><a href="../reference/proxy.html"><strong aria-hidden="true">8.</strong> Proxy</a></li><li class="chapter-item expanded "><a href="../reference/workspace.html"><strong aria-hidden="true">9.</strong> Workspaces</a></li><li class="chapter-item expanded "><a href="../reference/cli.html" class="active"><strong aria-hidden="true">10.</strong> Command line tools</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">11.</strong> Graphql API</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">12.</strong> Handlebar generator</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.</strong> The josh UI</div></li><li class="chapter-item expanded affix "><li class="part-title">Contributing</li><li class="chapter-item expanded "><div><strong aria-hidden="true">14.</strong> Development tools</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">15.</strong> Tracing</div></li></ol>            </div>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="../usecases.html"><strong aria-hidden="true">2.</strong> Use cases</a></li><li class="chapter-item expanded "><a href="../faq.html"><strong aria-hidden="true">3.</strong> FAQ</a></li><li class="chapter-item expanded affix "><li class="part-title">Guide</li><li class="chapter-item expanded "><a href="../guide/gettingstarted.html"><strong aria-hidden="true">4.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="../guide/workspaces.html"><strong aria-hidden="true">5.</strong> Working with workspaces</a></li><li class="chapter-item expanded "><a href="../guide/importing.html"><strong aria-hidden="true">6.</strong> Importing projects</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">7.</strong> Integrating with CI</div></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/filters.html"><strong aria-hidden="true">8.</strong> Filter syntax</a></li><li class="chapter-item expanded "><a href="../reference/proxy.html"><strong aria-hidden="true">9.</strong> Proxy</a></li><li class="chapter-item expanded "><a href="../reference/workspace.html"><strong aria-hidden="true">10.</strong> Workspaces</a></li><li class="chapter-item expanded "><a href="../reference/cli.html" class="active"><strong aria-hidden="true">11.</strong> Command line tools</a></li><li class="chapter-item expanded "><a href="../reference/graphql.html"><strong aria-hidden="true">12.</strong> Graphql API</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.</strong> Handlebar generator</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">14.</strong> The josh UI</div></li><li class="chapter-item expanded affix "><li class="part-title">Contributing</li><li class="chapter-item expanded "><a href="../contributing/testing.html"><strong aria-hidden="true">15.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../contributing/dev-tools.html"><strong aria-hidden="true">16.</strong> Development tools</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">17.</strong> Tracing</div></li></ol>            </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
@@ -146,11 +146,18 @@
                         <h1 id="josh-filter"><a class="header" href="#josh-filter">josh-filter</a></h1>
 <p>Command to rewrite history using <code>josh</code> filter specs.
 By default it will use <code>HEAD</code> as input and update <code>FILTERED_HEAD</code> with the filtered
-history, taking a filter specification as argument.</p>
+history, taking a filter specification as argument.
+(Note that input and output are swapped with <code>--reverse</code>.)</p>
+<p>It can be installed with the following Cargo command, assuming Rust is installed:</p>
+<pre><code class="language-shell">cargo install josh --git https://github.com/josh-project/josh.git
+</code></pre>
 <h1 id="git-sync"><a class="header" href="#git-sync">git-sync</a></h1>
 <p>A utility to make working with server side rewritten commits easier.
 Those commits frequently get produced when making changes to <code>workspace.josh</code> files.</p>
-<p>The command should be put into <code>PATH</code> and can be used as a drop-in replacement for <code>git push</code>.
+<p>The command is available <a href="https://raw.githubusercontent.com/josh-project/josh/master/scripts/git-sync">in the script
+directory</a>.
+It should be put downloaded and added to the <code>PATH</code>.
+It can then be used as a drop-in replacement for <code>git push</code>.
 It enables the server to <em>return</em> commits back to the client after a push. This is done by parsing
 the messages sent back by the server for announcements of rewritten commits and then fetching
 those to update the local references.
@@ -165,6 +172,9 @@ same as <code>git push</code>, also accepting the same arguments.</p>
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
+                                                    <a rel="next" href="../reference/graphql.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
                         
                         <div style="clear: both"></div>
                     </nav>
@@ -176,6 +186,9 @@ same as <code>git push</code>, also accepting the same arguments.</p>
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
+                                    <a rel="next" href="../reference/graphql.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                             </nav>
 
         </div>

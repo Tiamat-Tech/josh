@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Workspaces - Just One Single History</title>
+        <title>Importing projects - Just One Single History</title>
                 
 
         <!-- Custom HTML head -->
@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="../usecases.html"><strong aria-hidden="true">2.</strong> Use cases</a></li><li class="chapter-item expanded "><a href="../faq.html"><strong aria-hidden="true">3.</strong> FAQ</a></li><li class="chapter-item expanded affix "><li class="part-title">Guide</li><li class="chapter-item expanded "><a href="../guide/gettingstarted.html"><strong aria-hidden="true">4.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="../guide/workspaces.html"><strong aria-hidden="true">5.</strong> Working with workspaces</a></li><li class="chapter-item expanded "><a href="../guide/importing.html"><strong aria-hidden="true">6.</strong> Importing projects</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">7.</strong> Integrating with CI</div></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/filters.html"><strong aria-hidden="true">8.</strong> Filter syntax</a></li><li class="chapter-item expanded "><a href="../reference/proxy.html"><strong aria-hidden="true">9.</strong> Proxy</a></li><li class="chapter-item expanded "><a href="../reference/workspace.html" class="active"><strong aria-hidden="true">10.</strong> Workspaces</a></li><li class="chapter-item expanded "><a href="../reference/cli.html"><strong aria-hidden="true">11.</strong> Command line tools</a></li><li class="chapter-item expanded "><a href="../reference/graphql.html"><strong aria-hidden="true">12.</strong> Graphql API</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.</strong> Handlebar generator</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">14.</strong> The josh UI</div></li><li class="chapter-item expanded affix "><li class="part-title">Contributing</li><li class="chapter-item expanded "><a href="../contributing/testing.html"><strong aria-hidden="true">15.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../contributing/dev-tools.html"><strong aria-hidden="true">16.</strong> Development tools</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">17.</strong> Tracing</div></li></ol>            </div>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="../usecases.html"><strong aria-hidden="true">2.</strong> Use cases</a></li><li class="chapter-item expanded "><a href="../faq.html"><strong aria-hidden="true">3.</strong> FAQ</a></li><li class="chapter-item expanded affix "><li class="part-title">Guide</li><li class="chapter-item expanded "><a href="../guide/gettingstarted.html"><strong aria-hidden="true">4.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="../guide/workspaces.html"><strong aria-hidden="true">5.</strong> Working with workspaces</a></li><li class="chapter-item expanded "><a href="../guide/importing.html" class="active"><strong aria-hidden="true">6.</strong> Importing projects</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">7.</strong> Integrating with CI</div></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/filters.html"><strong aria-hidden="true">8.</strong> Filter syntax</a></li><li class="chapter-item expanded "><a href="../reference/proxy.html"><strong aria-hidden="true">9.</strong> Proxy</a></li><li class="chapter-item expanded "><a href="../reference/workspace.html"><strong aria-hidden="true">10.</strong> Workspaces</a></li><li class="chapter-item expanded "><a href="../reference/cli.html"><strong aria-hidden="true">11.</strong> Command line tools</a></li><li class="chapter-item expanded "><a href="../reference/graphql.html"><strong aria-hidden="true">12.</strong> Graphql API</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.</strong> Handlebar generator</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">14.</strong> The josh UI</div></li><li class="chapter-item expanded affix "><li class="part-title">Contributing</li><li class="chapter-item expanded "><a href="../contributing/testing.html"><strong aria-hidden="true">15.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../contributing/dev-tools.html"><strong aria-hidden="true">16.</strong> Development tools</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">17.</strong> Tracing</div></li></ol>            </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
@@ -143,80 +143,120 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="working-with-workspaces"><a class="header" href="#working-with-workspaces">Working with workspaces</a></h1>
-<p>For the sake of this example we will assume a <code>josh-proxy</code> instance is running and serving a
-repo on <code>http://josh/world.git</code> with some shared code in <code>shared</code>.</p>
-<h2 id="create-a-new-workspace"><a class="header" href="#create-a-new-workspace">Create a new workspace</a></h2>
-<p>To create a new workspace in the path <code>ws/hello</code> simply clone it as if it already exists:</p>
-<pre><code>$ git clone http://josh/world.git:workspace=ws/hello.git
+                        <h1 id="importing-projects"><a class="header" href="#importing-projects">Importing projects</a></h1>
+<p>When moving to a monorepo setup, especially in existing organisations,
+it is common that the need to consolidate existing project
+repositories arises.</p>
+<p>The simplest possible case is one where the previous history of a
+project does not need to be retained. In this case, the projects files
+can simply be copied into the monoreop at the appropriate location and
+committed.</p>
+<p>If history should be retained, josh can be used for importing a
+project as an alternative to built-in git commands like <a href="https://manpages.debian.org/testing/git-man/git-subtree.1.en.html"><code>git subtree</code></a>.</p>
+<p>Josh's <a href="../reference/filters.html">filter capability</a> lets you perform
+transformations on the history of a git repository to arbitrarily
+(re-)compose paths inside of a repository.</p>
+<p>A key aspect of this functionality is that all transformations are
+<em>reversible</em>. This means that if you apply a transformation moving
+files from the root of a repository to, say, <code>tools/project-b</code>,
+followed by an <em>inverse</em> transformation moving files from
+<code>tools/project-b</code> back to the root, you receive the same commit hashes
+you put in.</p>
+<p>We can use this feature to import a project into our monorepo while
+allowing external users to keep pulling on top of the same git history
+they already have, just with a new git remote.</p>
+<p>There are multiple ways of doing this, with the most common ones
+outlined below. You can look at <a href="https://github.com/josh-project/josh/issues/596"><code>josh#596</code></a> for a
+discussion of several other methods.</p>
+<h3 id="import-with-josh-filter"><a class="header" href="#import-with-josh-filter">Import with <code>josh-filter</code></a></h3>
+<p>Currently, the easiest way to do this is by using the <code>josh-filter</code>
+binary which is a command-line frontend to josh's filter capabilities.</p>
+<p>Inside of our target repository, it would work like this:</p>
+<ol>
+<li>
+<p>Fetch the repository we want to import (say, &quot;Project B&quot;, from
+<code>$REPO_URL</code>).</p>
+<pre><code class="language-sh">$ git fetch $REPO_URL master
 </code></pre>
-<p><code>git</code> will report that you appear to have cloned an empty repository if that path does not
-yet exist.
-If you don't get this message it means that the path already exists in the repo but may
-not yet have configured any path mappings.</p>
-<p>The next step is to add some path mapping to the <code>workspace.josh</code> file in the root of the
-workspace:</p>
-<pre><code>$ cd hello
-$ echo &quot;mod/a = :/shared/a&quot; &gt; workspace.josh
+<p>This will set the <code>FETCH_HEAD</code> reference to the fetched repository.</p>
+</li>
+<li>
+<p>Rewrite the history of that repository through josh to make it look
+as if the project had always been developed at our target path
+(say, <code>tools/project-b</code>).</p>
+<pre><code class="language-sh">$ josh-filter ':prefix=tools/project-b' FETCH_HEAD
 </code></pre>
-<p>And and commit the changes:</p>
-<pre><code>$ git add workspace.josh
-$ git commit -m &quot;add workspace&quot;
+<p>This will set the <code>FILTERED_HEAD</code> reference to the rewritten
+history.</p>
+</li>
+<li>
+<p>Merge the rewritten history into our target repository.</p>
+<pre><code class="language-sh">$ git merge --allow-unrelated FILTERED_HEAD
 </code></pre>
-<p>If the path did not exist previously, the resulting commit will be a root commit that does not share
-any history with the <code>world.git</code> repo.
-This means a normal <code>git push</code> will be rejected at this point.
-To get correct history, the
-resulting commit needs to be a based on the history that already exists in <code>world.git</code>.
-There is however no way to do this locally, because we don't have the data required for this.
-Also, the resulting tree should contain the contents of <code>shared/a</code> mapped to <code>mod/a</code> which
-means it needs to be produced on the server side because we don't have the files to put there.</p>
-<p>To accomplish that push with the create option:</p>
-<pre><code>$ git push -o create origin master
+<p>After this merge commit, the previously external project now lives
+at <code>tools/project-b</code> as expected.</p>
+</li>
+<li>
+<p>Any external users can now use the <code>:/tools/project-b</code> josh filter
+to retrieve changes made in the new project location - without the
+git hashes of their existing commits changing (that is to say,
+without conflicting).</p>
+</li>
+</ol>
+<h3 id="import-by-pushing-to-josh"><a class="header" href="#import-by-pushing-to-josh">Import by pushing to josh</a></h3>
+<p>If your monorepo is already running a <code>josh-proxy</code> in front of it, you
+can also import a project by pushing a project merge to josh.</p>
+<p>This has the benefit of not needing to clone the entire monorepo
+locally to do a merge, but the drawback of using a different, slightly
+slower filter mechanism when exporting the tree back out. For projects
+with very large history, consider using the <code>josh-filter</code> mechanism
+outlined above.</p>
+<p>Pushing a project merge to josh works like this:</p>
+<ol>
+<li>
+<p>Assume we have a local checkout of &quot;Project B&quot;, and we want to
+merge this into our monorepo. There is a <code>josh-proxy</code> running at
+<code>https://git.company.name/monorepo.git</code>. We want to merge this
+project into <code>/tools/project-b</code> in the monorepo.</p>
+</li>
+<li>
+<p>In the checkout of &quot;Project B&quot;, add the josh remote:</p>
+<pre><code class="language-sh">git remote add josh https://git.company.name/monorepo.git:/tools/project-b.git
 </code></pre>
-<blockquote>
-<p><strong>Note</strong>: While it is perfectly possible to use Josh without a code review system,
-it is strongly recommended to use some form of code review to be able to inspect commits
-created by Josh before they get into the immutable history of your main repository.</p>
-</blockquote>
-<p>As the resulting commit is created on the server side we need to get it from the server:</p>
-<pre><code>$ git pull --rebase
+<p>Note the use of the <code>/tools/project-b.git</code> josh filter, which
+points to a path that should not yet exist in the monorepo.</p>
+</li>
+<li>
+<p>Push the repository to josh with the <code>-o merge</code> option, creating a
+merge commit introducing the project history at that location,
+while retaining its history:</p>
+<pre><code class="language-sh">git push josh $ref -o merge
 </code></pre>
-<p>Now you should see <code>mod/a</code> populated with the content of the shared code.</p>
-<h2 id="map-a-shared-path-into-a-workspace"><a class="header" href="#map-a-shared-path-into-a-workspace">Map a shared path into a workspace</a></h2>
-<p>To add shared path to a location in the workspace that does not exist yet, first add an
-entry to the <code>workspace.josh</code> file and commit that.</p>
-<p>You can add the mapping at the end of the file using a simple syntax, and rely on josh to rewrite
-it for you in a canonical way.</p>
-<pre><code>...
-new/mapping/location/in/workspace = :/new/mapping/location/in/monorepo
-</code></pre>
-<p>At this point the path is of course empty, so the commit needs to be pushed to the server.
-When the same commit is then fetched back it will have the mapped path populated with the
-shared content.</p>
-<p>When the commit is pushed, josh will notify you about the rewrite. You can fetch the rewritten 
-commit using the advertised SHA.
-Alternatively, you can use <a href="./cli.html#git-sync">git sync</a> which will do it for you.</p>
-<h2 id="publish-a-non-shared-path-into-a-shared-location"><a class="header" href="#publish-a-non-shared-path-into-a-shared-location">Publish a non-shared path into a shared location</a></h2>
-<p>The steps here are exactly the same as for the mapping example above. The only difference being
-that the path already exists in the workspace but not in the shared location.</p>
-<h2 id="remove-a-mapping"><a class="header" href="#remove-a-mapping">Remove a mapping</a></h2>
-<p>To remove a mapping remove the corresponding entry from the <code>workspace.josh</code> file.
-The content of the previously shared path will stay in the workspace. That means the main
-repo will have two copies of that path from that point on. Effectivly creating a fork of that code.</p>
-<h2 id="remove-a-mapped-path"><a class="header" href="#remove-a-mapped-path">Remove a mapped path</a></h2>
-<p>To remove a mapped path as well as it's contents, remove the entry from the
-<code>workspace.josh</code> file and also remove the path inside the workspace using <code>git rm</code>.</p>
+</li>
+</ol>
+<h3 id="note-for-gerrit-users"><a class="header" href="#note-for-gerrit-users">Note for Gerrit users</a></h3>
+<p>With either method, when merging a set of new commits into a Gerrit
+repository and going through the standard code-review process, Gerrit
+might complain about missing Change-IDs in the imported commits.</p>
+<p>To work around this, the commits need to first be made &quot;known&quot; to
+Gerrit. This can be achieved by pushing the new parent of the merge
+commit to a separate branch in Gerrit directly (without going through
+the review mechanism). After this Gerrit will accept merge commits
+referencing that parent, as long as the merge commit itself has a
+Change-ID.</p>
+<p>Some monorepo setups on Gerrit use a special unrestricted branch like
+<code>merge-staging</code> for this, to which users with permission to import
+projects can force-push unrelated histories.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                                                    <a rel="prev" href="../reference/proxy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                                    <a rel="prev" href="../guide/workspaces.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
-                                                    <a rel="next" href="../reference/cli.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                                    <a rel="next" href="../reference/filters.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         
@@ -226,11 +266,11 @@ repo will have two copies of that path from that point on. Effectivly creating a
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                                    <a rel="prev" href="../reference/proxy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                    <a rel="prev" href="../guide/workspaces.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
-                                    <a rel="next" href="../reference/cli.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                    <a rel="next" href="../reference/filters.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
                             </nav>

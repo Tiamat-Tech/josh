@@ -3,7 +3,7 @@
 
 # starting josh
 ANCHOR: docker_github
-  $ docker run -d -p 8000:8000 -e JOSH_REMOTE=https://github.com -v josh-vol:$(pwd)/git_data esrlabs/josh-proxy:latest > josh.out
+  $ docker run -d -p 8000:8000 -e JOSH_REMOTE=https://github.com -v josh-vol:$(pwd)/git_data joshproject/josh-proxy:latest > josh.out
 ANCHOR_END: docker_github
 
 # waiting for josh to be running
@@ -14,7 +14,7 @@ ANCHOR_END: docker_github
 
 # cloning josh
 ANCHOR: clone_full
-  $ git clone http://localhost:8000/esrlabs/josh.git
+  $ git clone http://localhost:8000/josh-project/josh.git
   Cloning into 'josh'...
   $ cd josh
 ANCHOR_END: clone_full
@@ -56,7 +56,7 @@ ANCHOR_END: ls_full
 # cloning doc
 ANCHOR: clone_doc
   $ cd ..
-  $ git clone http://localhost:8000/esrlabs/josh.git:/docs.git
+  $ git clone http://localhost:8000/josh-project/josh.git:/docs.git
   Cloning into 'docs'...
   $ cd docs
 ANCHOR_END: clone_doc

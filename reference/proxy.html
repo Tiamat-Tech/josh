@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="../usecases.html"><strong aria-hidden="true">2.</strong> Use cases</a></li><li class="chapter-item expanded affix "><li class="part-title">Guide</li><li class="chapter-item expanded "><a href="../guide/gettingstarted.html"><strong aria-hidden="true">3.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="../guide/workspaces.html"><strong aria-hidden="true">4.</strong> Working with workspaces</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">5.</strong> Importing projects</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">6.</strong> Integrating with CI</div></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/filters.html"><strong aria-hidden="true">7.</strong> Filter syntax</a></li><li class="chapter-item expanded "><a href="../reference/proxy.html" class="active"><strong aria-hidden="true">8.</strong> Proxy</a></li><li class="chapter-item expanded "><a href="../reference/workspace.html"><strong aria-hidden="true">9.</strong> Workspaces</a></li><li class="chapter-item expanded "><a href="../reference/cli.html"><strong aria-hidden="true">10.</strong> Command line tools</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">11.</strong> Graphql API</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">12.</strong> Handlebar generator</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.</strong> The josh UI</div></li><li class="chapter-item expanded affix "><li class="part-title">Contributing</li><li class="chapter-item expanded "><div><strong aria-hidden="true">14.</strong> Development tools</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">15.</strong> Tracing</div></li></ol>            </div>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../intro.html"><strong aria-hidden="true">1.</strong> Intro</a></li><li class="chapter-item expanded "><a href="../usecases.html"><strong aria-hidden="true">2.</strong> Use cases</a></li><li class="chapter-item expanded "><a href="../faq.html"><strong aria-hidden="true">3.</strong> FAQ</a></li><li class="chapter-item expanded affix "><li class="part-title">Guide</li><li class="chapter-item expanded "><a href="../guide/gettingstarted.html"><strong aria-hidden="true">4.</strong> Getting started</a></li><li class="chapter-item expanded "><a href="../guide/workspaces.html"><strong aria-hidden="true">5.</strong> Working with workspaces</a></li><li class="chapter-item expanded "><a href="../guide/importing.html"><strong aria-hidden="true">6.</strong> Importing projects</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">7.</strong> Integrating with CI</div></li><li class="chapter-item expanded affix "><li class="part-title">Reference</li><li class="chapter-item expanded "><a href="../reference/filters.html"><strong aria-hidden="true">8.</strong> Filter syntax</a></li><li class="chapter-item expanded "><a href="../reference/proxy.html" class="active"><strong aria-hidden="true">9.</strong> Proxy</a></li><li class="chapter-item expanded "><a href="../reference/workspace.html"><strong aria-hidden="true">10.</strong> Workspaces</a></li><li class="chapter-item expanded "><a href="../reference/cli.html"><strong aria-hidden="true">11.</strong> Command line tools</a></li><li class="chapter-item expanded "><a href="../reference/graphql.html"><strong aria-hidden="true">12.</strong> Graphql API</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">13.</strong> Handlebar generator</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">14.</strong> The josh UI</div></li><li class="chapter-item expanded affix "><li class="part-title">Contributing</li><li class="chapter-item expanded "><a href="../contributing/testing.html"><strong aria-hidden="true">15.</strong> Testing</a></li><li class="chapter-item expanded "><a href="../contributing/dev-tools.html"><strong aria-hidden="true">16.</strong> Development tools</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">17.</strong> Tracing</div></li></ol>            </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
 
@@ -149,11 +149,19 @@ via HTTP.</p>
 <p>It needs the URL of the upstream server and a local directory to store its data.
 Optionally, a port to listen on can be specified. For example, running a local <code>josh-proxy</code>
 instance for github.com on port 8000:</p>
-<pre><code>$ docker run -p 8000:8000 -e JOSH_REMOTE=https://github.com -v josh-vol:/data/git esrlabs/josh-proxy:r21.03.08
+<pre><code>$ docker run -p 8000:8000 -e JOSH_REMOTE=https://github.com -v josh-vol:/data/git joshproject/josh-proxy:latest
 </code></pre>
+<blockquote>
+<p><strong>Note</strong>: While <code>josh-proxy</code> is intended to be used with a http upstream it can also proxy for
+an ssh upstream when <code>ssh</code> is used instead of <code>http</code> in the url.
+In that case it will use the ssh private key of the current user (just like
+git would) and take the username from the downstream http request.
+This mode of operation can be useful for evaluation or local use by individual developers but
+should never be used on a normal server deployment.</p>
+</blockquote>
 <p>For a first example of how to make use of josh, just the josh documentation can be checked out as
 its own repository via this command:</p>
-<pre><code>$ git clone http://localhost:8000/esrlabs/josh.git:/docs.git
+<pre><code>$ git clone http://localhost:8000/josh-project/josh.git:/docs.git
 </code></pre>
 <blockquote>
 <p><strong>Note</strong>: This URL needs to contain the <code>.git</code> suffix twice: once after the original path
@@ -162,12 +170,21 @@ and once more after the filter spec.</p>
 <p><code>josh-proxy</code> supports read and write access to the repository, so when making changes
 to any files in the filtered repository, you can just commit and push them
 like you are used to.</p>
+<blockquote>
+<p><strong>Note</strong>: The proxy is semantically stateless. The data inside the docker volume is only persisted across
+runs for performance reasons. This has two important implications for deployment:</p>
+<ol>
+<li>The data does not need to be backed up unless working with very large repos where rebuilding would
+be very expensive. And 2) Multiple instances of josh-proxy can be used interchangeably for availability
+or load balancing purposes.</li>
+</ol>
+</blockquote>
 <h2 id="url-syntax-and-breakdown"><a class="header" href="#url-syntax-and-breakdown">URL syntax and breakdown</a></h2>
 <p>This is the URL of a <code>josh-proxy</code> instance:</p>
 <pre><code>http://localhost:8000
 </code></pre>
 <p>This is the repository location on the upstream host on which to perform the filter operations:</p>
-<pre><code>/esrlabs/josh.git
+<pre><code>/josh-project/josh.git
 </code></pre>
 <p>This is the set of filter operations to perform:</p>
 <pre><code>:/docs.git
@@ -178,12 +195,12 @@ the <a href="./filters.html">filters</a> section.</p>
 <p>By default, a git URL is used to point to the remote repository to download <em>and also</em> to dictate
 how the local repository shall be named.  It's important to learn that the last name in the URL is
 what the local git client will name the new, local repository. For example:</p>
-<pre><code>$ git clone http://localhost:8000/esrlabs/josh.git:/docs.git
+<pre><code>$ git clone http://localhost:8000/josh-project/josh.git:/docs.git
 </code></pre>
 <p>will create the new repository at directory <code>docs</code>, as <code>docs.git</code> is the last name in the URL.</p>
 <p>By default, this leads to rather odd-looking repositories when the <code>prefix</code> filter is the final
 filter of a URL:</p>
-<pre><code>$ git clone http://localhost:8000/esrlabs/josh.git:/docs:prefix=josh-docs.git
+<pre><code>$ git clone http://localhost:8000/josh-project/josh.git:/docs:prefix=josh-docs.git
 </code></pre>
 <p>This will still clone just the josh documentation, but the final directory structure will look like
 this:</p>
@@ -196,8 +213,18 @@ intended. This results from git's reuse and repurposing of the remote URL, as <c
 is the final name in the URL. With no other alternatives, this gets used for the repository name.</p>
 <p>To explicitly specify a repository name, provide the desired name after the URL when cloning a new
 repository:</p>
-<pre><code>$ git clone http://localhost:8000/esrlabs/josh.git:/docs:prefix=josh-docs.git my-repo
+<pre><code>$ git clone http://localhost:8000/josh-project/josh.git:/docs:prefix=josh-docs.git my-repo
 </code></pre>
+<h2 id="serving-a-github-repo"><a class="header" href="#serving-a-github-repo">Serving a github repo</a></h2>
+<p>To prompt for authentication, Josh relies on the server requesting it on fetch. When using a server
+which doesn't need authentication for fetching, Josh will not automatically prompt for
+authentication when pushing, and it will be impossible to provide credentials for pushing.</p>
+<p>To solve this, you need to pass the <code>--require-auth</code> option to josh-proxy.
+This can be done with <code>JOSH_EXTRA_OPTS</code> when using the docker image like so:</p>
+<p><code>docker run -d -p 8000:8000 -e JOSH_EXTRA_OPTS=&quot;--require-auth&quot; -e JOSH_REMOTE=https://github.com/josh-project -v josh-vol:$(pwd)/git_data joshproject/josh-proxy:latest </code></p>
+<p>In this example, we serve only the josh-project repositories. Be aware that if you don't add the
+organisation or repo URL, your instance will be able to serve all of github. You can (and should)
+restrict it to your repository or organisation by making it part of the URL.</p>
 
                     </main>
 
