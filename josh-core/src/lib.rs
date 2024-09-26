@@ -155,9 +155,9 @@ where
     T: std::error::Error,
 {
     fn from(item: T) -> Self {
-        tracing::event!(tracing::Level::ERROR, item = ?item, error = true);
-        log::error!("JoshError: {:?}", item);
         let bt = backtrace::Backtrace::new();
+        tracing::event!(tracing::Level::ERROR, item = ?item, backtrace = format!("{:?}", bt), error = true);
+        log::error!("JoshError: {:?}", item);
         log::error!("Backtrace: {:?}", bt);
         josh_error(&format!("converted {:?}", item))
     }
@@ -221,7 +221,10 @@ pub fn filter_commit(
     oid: git2::Oid,
     permissions: filter::Filter,
 ) -> JoshResult<git2::Oid> {
-    let original_commit = transaction.repo().find_commit(oid)?;
+    let original_commit = {
+        let obj = transaction.repo().find_object(oid, None)?;
+        obj.peel_to_commit()?
+    };
 
     let perms_commit = if let Some(s) = transaction.get_ref(permissions, oid) {
         s
