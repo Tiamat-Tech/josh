@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-08490afc.js";
+            window.path_to_searchindex_js = "searchindex-239660db.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-7b1b477e.js"></script>
+        <script src="toc-56a8e5ce.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -754,7 +754,7 @@ repository accessible via the <code>josh</code> CLI, regardless of whether you a
 filtered view of a monorepo or a plain repository.</p>
 <h2 id="concepts"><a class="header" href="#concepts">Concepts</a></h2>
 <p>In a stacked changes workflow, each commit on your local branch represents one
-self-contained change. When you push with <code>--split</code> or <code>--stack</code>, Josh creates a
+self-contained change. When you use <code>josh publish</code>, Josh creates a
 separate git ref for each qualifying commit.</p>
 <p>A commit qualifies for a separate ref — and an automatic PR, when
 <a href="#forge-integration">forge integration</a> is configured — only if both of the
@@ -784,21 +784,6 @@ submission. Returns an error message inline without clearing the form.
 
 Change: login-form-validation
 </code></pre>
-<h2 id="push-modes"><a class="header" href="#push-modes">Push modes</a></h2>
-<p>There are two stacked push modes:</p>
-<ul>
-<li>
-<p><strong><code>--split</code></strong> — Each commit is pushed as a <em>minimal, independent</em> diff. Josh strips
-away the context of earlier commits in the stack so that each change can be applied on
-its own. This is the recommended mode for GitHub PR stacks, because each PR shows only
-its own diff even before earlier PRs are merged.</p>
-</li>
-<li>
-<p><strong><code>--stack</code></strong> — Each commit is pushed with its full upstream context preserved. The
-history of earlier commits is kept intact. Use this when reviewers need the full
-context of the stack to understand each individual change.</p>
-</li>
-</ul>
 <h2 id="workflow"><a class="header" href="#workflow">Workflow</a></h2>
 <h3 id="1-write-your-commits"><a class="header" href="#1-write-your-commits">1. Write your commits</a></h3>
 <p>Work on your feature normally, writing one commit per logical step. Add a <code>Change:</code>
@@ -817,8 +802,8 @@ Change: validation-tests"
 </code></pre>
 <p>Commits without a <code>Change:</code> footer are included in the push to the base branch but
 do not get their own ref or PR.</p>
-<h3 id="2-push-as-a-stack"><a class="header" href="#2-push-as-a-stack">2. Push as a stack</a></h3>
-<pre><code class="language-shell">josh push --split
+<h3 id="2-publish"><a class="header" href="#2-publish">2. Publish</a></h3>
+<pre><code class="language-shell">josh publish
 </code></pre>
 <p>For each qualifying commit Josh pushes a ref under
 <code>refs/heads/@changes/&lt;base&gt;/&lt;author&gt;/&lt;change-id&gt;</code>. With GitHub forge integration
@@ -830,9 +815,9 @@ marked as <strong>draft</strong> until the changes before them are merged.</p>
 <p>After receiving review feedback, amend or rebase your commits as needed, keeping the
 <code>Change:</code> footers intact:</p>
 <pre><code class="language-shell">git rebase -i HEAD~3   # edit commits, preserve Change: footers
-josh push --split      # re-push; existing PRs are updated, not recreated
+josh publish           # re-publish; existing PRs are updated, not recreated
 </code></pre>
-<p>As long as the change ID in the footer is preserved through your edits, <code>josh push</code>
+<p>As long as the change ID in the footer is preserved through your edits, <code>josh publish</code>
 updates the correct existing PRs rather than creating new ones.</p>
 <h3 id="4-merge"><a class="header" href="#4-merge">4. Merge</a></h3>
 <p>Once a PR is approved and its required checks pass, merge it through the forge’s normal
@@ -841,13 +826,12 @@ UI. Then sync your local branch to account for the merged commit:</p>
 </code></pre>
 <p>This rebases your remaining local commits on top of the updated upstream state.
 <code>--autostash</code> ensures any uncommitted changes are preserved across the operation. After
-pulling, the next <code>josh push --split</code> will retarget and promote the next PR in the stack
+pulling, the next <code>josh publish</code> will retarget and promote the next PR in the stack
 from draft to ready for review.</p>
 <h2 id="without-forge-integration"><a class="header" href="#without-forge-integration">Without forge integration</a></h2>
-<p><code>josh push --split</code> and <code>josh push --stack</code> work without
-<a href="#forge-integration">forge integration</a>. Josh still pushes the individual
-<code>@changes/…</code> refs to the upstream repository; you can then create pull requests from
-them manually, or use them as part of a custom review workflow.</p>
+<p><code>josh publish</code> works without <a href="#forge-integration">forge integration</a>. Josh still
+pushes the individual <code>@changes/…</code> refs to the upstream repository; you can then create
+pull requests from them manually, or use them as part of a custom review workflow.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="importing-projects"><a class="header" href="#importing-projects">Importing projects</a></h1>
 <p>When moving to a monorepo setup, especially in existing organisations,
@@ -1064,8 +1048,37 @@ the correct upstream commits, so your changes land in the right place in the mon
 <tr><td><code>-f</code>, <code>--force</code></td><td>Force-push (non-fast-forward)</td></tr>
 <tr><td><code>--atomic</code></td><td>Atomic push (all-or-nothing)</td></tr>
 <tr><td><code>--dry-run</code></td><td>Show what would be pushed without actually pushing</td></tr>
-<tr><td><code>--split</code></td><td>Push each commit as an independent, minimal diff (see <a href="#stacked-changes">Stacked changes</a>)</td></tr>
-<tr><td><code>--stack</code></td><td>Push commits as a stack, preserving upstream context (see <a href="#stacked-changes">Stacked changes</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="josh-publish"><a class="header" href="#josh-publish">josh publish</a></h2>
+<p>Push each commit as an independent, minimal diff (stacked changes workflow). Each commit
+with a <a href="#stacked-changes">Change ID</a> is pushed to its own ref and, when
+<a href="#forge-integration">forge integration</a> is configured, gets its own pull request.</p>
+<pre><code>josh publish [&lt;remote&gt;] [&lt;refspecs&gt;...] [options]
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>&lt;remote&gt;</code></td><td>Remote name to push to (default: <code>origin</code>)</td></tr>
+<tr><td><code>&lt;refspecs&gt;</code></td><td>Refs to push (default: current branch)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Options:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Flag</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>-f</code>, <code>--force</code></td><td>Force-push (non-fast-forward)</td></tr>
+<tr><td><code>--atomic</code></td><td>Atomic push (all-or-nothing)</td></tr>
+<tr><td><code>--dry-run</code></td><td>Show what would be pushed without actually pushing</td></tr>
 </tbody>
 </table>
 </div>
@@ -1429,6 +1442,131 @@ was applied to pull documentation from <code>josh-docs/docs</code>, the prefix i
 again by the subdirectory filter. Thus, the order in which filters are provided is crucial, as each
 filter further transforms the latest transformation of the tree.</p>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="experimental-features"><a class="header" href="#experimental-features">Experimental features</a></h1>
+<p>Experimental features are opt-in and must be enabled at runtime by setting the
+environment variable <code>JOSH_EXPERIMENTAL_FEATURES=1</code>. Their behaviour or syntax
+may change in future releases.</p>
+<h2 id="filters"><a class="header" href="#filters">Filters</a></h2>
+<h3 id="object-reference-path"><a class="header" href="#object-reference-path">Object reference <strong><code>:&amp;path</code></strong></a></h3>
+<p>Reads the git object at <code>path</code> (a file or directory) and replaces its content with a text blob
+containing the object’s SHA-1 hash. This turns a real file or tree into a lightweight pointer.</p>
+<p>If <code>path</code> does not exist in the input tree, the filter is a no-op.</p>
+<p>Example: <code>:&amp;sub1</code> on a commit where <code>sub1</code> is a directory produces a file <code>sub1</code> whose content
+is the 40-character SHA of that directory tree.</p>
+<h3 id="object-dereference-path"><a class="header" href="#object-dereference-path">Object dereference <strong><code>:*path</code></strong></a></h3>
+<p>Reads the SHA-1 hash stored as text in the file at <code>path</code> and replaces that file with the git
+object the hash points to (a file or a directory tree). This follows the pointer written by
+<code>:&amp;path</code>.</p>
+<p>If <code>path</code> does not exist the filter is a no-op. If the content is not a valid SHA or the object
+is not present in the repository, an error is returned.</p>
+<p>Example: given a file <code>sub1</code> whose content is the SHA of a directory tree, <code>:*sub1</code> replaces
+that file with the actual directory tree at <code>sub1</code>.</p>
+<h3 id="object-dereference-into-subdirectory-path"><a class="header" href="#object-dereference-into-subdirectory-path">Object dereference into subdirectory <strong><code>:*/path</code></strong></a></h3>
+<p>Dereferences the pointer stored at <code>path</code> and then extracts the resulting object directly at the
+repository root, discarding the <code>path</code> prefix. This is the typical way to restore content that
+was previously stored with <code>:&amp;path</code>.</p>
+<p>Expands to <code>:*path:/path</code>. The canonical printed form is the expanded syntax.</p>
+<p>Example: <code>:*/sub1</code> on a tree where <code>sub1</code> holds a SHA of a directory returns that directory’s
+contents at the root, as if <code>sub1</code> never existed.</p>
+<h3 id="tree-id-capture-pathfilter"><a class="header" href="#tree-id-capture-pathfilter">Tree ID capture <strong><code>:#path[filter]</code></strong></a></h3>
+<p>Applies <code>filter</code> to the current tree and writes the SHA-1 hash of the resulting tree as a text
+file at <code>path</code>. The filter itself does not appear in the output — only the hash it produces.</p>
+<p>This lets you record a stable, content-addressed reference to a subtree alongside other files.</p>
+<p>Example: <code>:#version.txt[:/sub1]</code> writes the SHA of the <code>sub1</code> directory tree into <code>version.txt</code>.</p>
+<h3 id="starlark-filter-pathtoscriptcontext-filter"><a class="header" href="#starlark-filter-pathtoscriptcontext-filter">Starlark filter <strong><code>:!path/to/script[context filter]</code></strong></a></h3>
+<p>Evaluates a <a href="https://github.com/bazelbuild/starlark">Starlark</a> script stored in the repository
+and uses the filter it produces. The script file is loaded from <code>path</code> with a <code>.star</code> extension
+appended automatically.</p>
+<p>The optional <code>[context filter]</code> scopes the tree that is visible to the script: the context
+filter is applied to the input tree first, and the result is what the script sees as <code>tree</code>. The
+context filter does not affect the filter that the script returns — it only controls what the
+script can read.</p>
+<p>The script file itself is always included in the output tree alongside whatever the script’s
+filter selects.</p>
+<p><strong>Script contract</strong></p>
+<p>The script must assign a <code>Filter</code> value to the variable named <code>filter</code>. At the start of
+execution <code>filter</code> is pre-set to a no-op filter, so a minimal script that selects nothing can
+simply leave it unchanged, or assign a new value:</p>
+<pre><code class="language-python">filter = filter.subdir("src")
+</code></pre>
+<p><strong>Global variables available in the script</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Variable</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>filter</code></td><td><code>Filter</code></td><td>Starts as a no-op filter. Assign your result here.</td></tr>
+<tr><td><code>tree</code></td><td><code>Tree</code></td><td>The commit tree (or the context-filtered tree if a context filter was given).</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Global functions</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Function</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>compose([f1, f2, ...])</code></td><td>Overlay multiple filters, same semantics as <code>:[f1,f2,...]</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong><code>Filter</code> methods</strong></p>
+<p>All methods return a new <code>Filter</code> and can be chained.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>filter.subdir(path)</code></td><td>Select a subdirectory and make it the root.</td></tr>
+<tr><td><code>filter.prefix(path)</code></td><td>Place the tree under a subdirectory prefix.</td></tr>
+<tr><td><code>filter.file(path)</code></td><td>Select a single file, keeping its path.</td></tr>
+<tr><td><code>filter.rename(dst, src)</code></td><td>Select <code>src</code> and place it at <code>dst</code>.</td></tr>
+<tr><td><code>filter.pattern(pattern)</code></td><td>Select files/directories matching a glob pattern (<code>*</code> allowed).</td></tr>
+<tr><td><code>filter.chain(other)</code></td><td>Apply <code>other</code> after this filter.</td></tr>
+<tr><td><code>filter.nop()</code></td><td>No-op; passes the tree through unchanged.</td></tr>
+<tr><td><code>filter.empty()</code></td><td>Produce an empty tree.</td></tr>
+<tr><td><code>filter.linear()</code></td><td>Linearise history (drop merge parents).</td></tr>
+<tr><td><code>filter.workspace(path)</code></td><td>Apply the workspace filter rooted at <code>path</code>.</td></tr>
+<tr><td><code>filter.stored(path)</code></td><td>Apply the stored filter at <code>path.josh</code>.</td></tr>
+<tr><td><code>filter.starlark(path, context_filter)</code></td><td>Apply another Starlark filter with an optional context filter.</td></tr>
+<tr><td><code>filter.author(name, email)</code></td><td>Override the commit author.</td></tr>
+<tr><td><code>filter.committer(name, email)</code></td><td>Override the committer.</td></tr>
+<tr><td><code>filter.message(template)</code></td><td>Rewrite commit messages using a template.</td></tr>
+<tr><td><code>filter.unsign()</code></td><td>Strip GPG signatures from commits.</td></tr>
+<tr><td><code>filter.prune_trivial_merge()</code></td><td>Remove merge commits whose tree equals their first parent.</td></tr>
+<tr><td><code>filter.hook(hook)</code></td><td>Apply a hook filter.</td></tr>
+<tr><td><code>filter.with_meta(key, value)</code></td><td>Attach metadata to the filter.</td></tr>
+<tr><td><code>filter.is_nop()</code></td><td>Returns <code>True</code> if the filter is a no-op.</td></tr>
+<tr><td><code>filter.peel()</code></td><td>Strip metadata from the filter.</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong><code>Tree</code> methods</strong></p>
+<p>The <code>tree</code> object provides read-only access to the commit tree visible to the script.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>tree.file(path)</code></td><td>Returns the text content of the file at <code>path</code>, or an empty string if absent or binary.</td></tr>
+<tr><td><code>tree.files(path)</code></td><td>Returns a list of file paths that are direct children of <code>path</code>.</td></tr>
+<tr><td><code>tree.dirs(path)</code></td><td>Returns a list of directory paths that are direct children of <code>path</code>.</td></tr>
+<tr><td><code>tree.tree(path)</code></td><td>Returns a <code>Tree</code> object rooted at <code>path</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Example</strong></p>
+<p>A script that dynamically includes every top-level subdirectory as a prefixed subtree:</p>
+<pre><code class="language-python"># st/config.star
+parts = [filter.subdir(d).prefix(d) for d in tree.dirs("")]
+filter = compose(parts)
+</code></pre>
+<p>Applied with <code>:!st/config</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="working-with-workspaces-1"><a class="header" href="#working-with-workspaces-1">Working with workspaces</a></h1>
 <p>For the sake of this example we will assume a <code>josh-proxy</code> instance is running and serving a
 repo on <code>http://josh/world.git</code> with some shared code in <code>shared</code>.</p>
@@ -1500,7 +1638,7 @@ platform (a “forge”) such as GitHub. It is not required for normal git opera
 cloning, pushing, and pulling all work without it, even with private repositories.</p>
 <p>Forge integration is specifically used for <strong>automatic pull request management</strong> during
 <a href="#stacked-changes">stacked changes</a> workflows. When you push a stack of
-commits with <code>josh push --split</code> or <code>josh push --stack</code>, <code>josh</code> can automatically
+commits with <code>josh publish</code>, <code>josh</code> can automatically
 create or update one pull request per commit on the forge.</p>
 <h2 id="github"><a class="header" href="#github">GitHub</a></h2>
 <p>GitHub is currently the only supported forge.</p>
@@ -1523,8 +1661,7 @@ This takes precedence over any stored token and is useful in CI environments:</p
 <pre><code class="language-shell">export GH_TOKEN=ghp_...
 </code></pre>
 <h3 id="what-forge-integration-enables"><a class="header" href="#what-forge-integration-enables">What forge integration enables</a></h3>
-<p>Once authenticated, <code>josh push --split</code> or <code>josh push --stack</code> will, in addition to
-pushing the git refs:</p>
+<p>Once authenticated, <code>josh publish</code> will, in addition to pushing the git refs:</p>
 <ul>
 <li><strong>Create</strong> a pull request for each commit that does not yet have one.</li>
 <li><strong>Update</strong> existing pull requests (title, body, base branch) when commits are amended
